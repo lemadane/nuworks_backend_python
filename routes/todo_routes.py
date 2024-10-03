@@ -47,8 +47,7 @@ async def getall_todos(offset: int = 0, limit: int = 100):
    try:
       todos = []
       async for todo in todo_collection.find().skip(offset).limit(limit):
-         todos.append(todo_helper(todo)
-      )
+         todos.append(todo_helper(todo))
       return {
          'todos': todos,
          'count': len(todos),
@@ -131,39 +130,6 @@ async def delete_todo(todo_id: str, res: Response):
       )
       res.status_code = 204
       return
-   except Exception as error:
-      print(f'error: {str(error)}')
-      raise HTTPException(
-         status_code=422,
-         detail=f'Something wrong happened')
-
-
-@todo_routes.post('/todos/delete')
-async def delete_todos(todo:TodoUpdate, res: Response):
-   try:
-      print(f'todo: {todo}')
-      todo_dict = todo.model_dump(exclude_unset=True)   
-      print(f'todo_dict: {todo_dict}')
-      has_deletes =  len(todo_dict) >= 1
-      print(f'has_deletes: {has_deletes}')
-      if not has_deletes:
-         raise HTTPException(
-         status_code=400, 
-         detail='Nothing to delete'
-      )
-      delete_result = await todo_collection.delete_many(
-         todo_dict
-      )
-      print(f'delete_result: {delete_result}')
-      delete_success = delete_result.deleted_count > 0
-      print(f'has_deletes: {has_deletes}')
-      if not delete_success:
-         raise HTTPException(
-            status_code=404,
-            detail='Todo not found'
-         )     
-      res.status_code = 204
-      return { 'deleted': delete_result.deleted_count }
    except Exception as error:
       print(f'error: {str(error)}')
       raise HTTPException(
